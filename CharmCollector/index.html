@@ -306,21 +306,21 @@
   <div class="header">
     <div class="game-title">Charm Collector</div>
     <div class="sub">BotWithUs Script — Development Log</div>
-    <div class="date-badge">Session — February 25, 2026</div>
+    <div class="date-badge">Session — February 25, 2026 &nbsp;·&nbsp; Updated</div>
   </div>
 
   <div class="stats-bar">
     <div class="stat">
       <div class="stat-label">Features Added</div>
-      <div class="stat-value">8</div>
+      <div class="stat-value">12</div>
     </div>
     <div class="stat">
       <div class="stat-label">Improvements</div>
-      <div class="stat-value">4</div>
+      <div class="stat-value">7</div>
     </div>
     <div class="stat">
       <div class="stat-label">Known Bugs</div>
-      <div class="stat-value" style="color: var(--red);">5</div>
+      <div class="stat-value" style="color: var(--red);">2</div>
     </div>
     <div class="stat">
       <div class="stat-label">API Version</div>
@@ -438,6 +438,81 @@
   </div>
 
 
+
+    <div class="entry feature">
+      <div class="entry-tag">Feature</div>
+      <div class="entry-title">BWU-Styled ImGui UI — Sidebar Navigation</div>
+      <div class="entry-desc">
+        Replaced the flat ImGui panel with a full BWU-themed window matching the BotWithUs design language.
+        Uses <code>BwuImGuiStyle.applyBwuTheme()</code> with a dark blue transparent background
+        (<code>WindowBg 0.04 / 0.08 / 0.22 / 0.82</code>), <code>NoTitleBar</code> window flags,
+        and <code>BwuImGuiStyle.gradientButton()</code> for Start/Stop.
+        A three-tab sidebar (Settings / Statistics / Console) handles navigation,
+        with active tabs glowing blue and inactive tabs transparent.
+      </div>
+    </div>
+
+    <div class="entry feature">
+      <div class="entry-tag">Feature</div>
+      <div class="entry-title">UI Split — CharmCollectorUI.java Separate File</div>
+      <div class="entry-desc">
+        The <code>CharmCollectorUI</code> inner class was extracted into its own top-level file
+        in the same package. All fields accessed by the UI were changed from <code>private</code>
+        to package-private. Constants referenced by the UI (<code>LOOT_ALL_INTERFACE</code>,
+        <code>CHARM_POTION_DURATION_MS</code>, <code>OVERLOAD_DURATION_MS</code>,
+        <code>AFK_PRESETS</code>, <code>AfkLocation</code>) were similarly made package-private.
+        The UI holds a <code>script</code> reference and a <code>ScriptConsole</code> reference
+        for the live console log panel.
+      </div>
+    </div>
+
+    <div class="entry feature">
+      <div class="entry-tag">Feature</div>
+      <div class="entry-title">Console Panel with Feature Descriptions</div>
+      <div class="entry-desc">
+        The Console tab now shows static descriptive text for every feature above the live log output,
+        explaining what each module does and what to expect in the log.
+        Live output is rendered in a scrollable child window with <code>SetScrollHereY(1f)</code>
+        auto-scroll and capped at the last 200 lines.
+      </div>
+    </div>
+
+    <div class="entry fix">
+      <div class="entry-tag">Fix</div>
+      <div class="entry-title">Loot Interface ID Corrected — 1490 → 1486</div>
+      <div class="entry-desc">
+        The loot interface was hardcoded as <code>1490</code> but the actual interface ID confirmed
+        in-game is <code>1486</code>. The old value caused <code>Interfaces.isOpen()</code> to always
+        return false, so the script never fired the loot action — instead looping forever through the
+        reopen path. Fixed to <code>1486</code>.
+      </div>
+    </div>
+
+    <div class="entry fix">
+      <div class="entry-tag">Fix</div>
+      <div class="entry-title">Loot Reopen — Now Targets Gold Charm First</div>
+      <div class="entry-desc">
+        The ground item reopen logic previously clicked the nearest <em>any</em> item,
+        which could land on a player-dropped item or unrelated object.
+        Rewritten to search in priority order: <code>Gold charm</code> first (drops constantly at Hellhounds),
+        then any other charm type, then nearest anything as a last resort.
+      </div>
+    </div>
+
+    <div class="entry fix">
+      <div class="entry-tag">Fix</div>
+      <div class="entry-title">ImGui API Correctness — SliderInt / InputText / RadioButton</div>
+      <div class="entry-desc">
+        Three widget calls were wrong after inspecting the embedded Javadoc in <code>botwithus-api-1.0.8.jar</code>.
+        <code>SliderInt(String,int[],int,int)</code> does not exist — correct method is
+        <code>Slider(String, int, int, int, int)</code> (flags as fifth arg).
+        <code>InputText</code> takes <code>(String label, String text)</code> and returns a <code>String</code> —
+        not a <code>String[]</code> buffer.
+        <code>RadioButton(String, boolean)</code> does not exist — replaced with
+        <code>Combo(String, int, String...)</code> returning the selected index.
+      </div>
+    </div>
+
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!--  IMPROVEMENTS                                                            -->
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -494,6 +569,43 @@
   </div>
 
 
+
+    <div class="entry improve">
+      <div class="entry-tag">Improve</div>
+      <div class="entry-title">Settings Panel Reorganised</div>
+      <div class="entry-desc">
+        Settings tab restructured into three clear sections.
+        <strong>Settings</strong> groups Charming Potion, Overload, and Bury Bones together.
+        <strong>Loot &amp; Aggro</strong> combines Auto Loot (with mode selector) and Aggro Rotation (with preset dropdown) into one section.
+        <strong>Auto Eat</strong> sits at the bottom with food name input and HP% slider.
+        No section title shown in the console tab.
+      </div>
+    </div>
+
+    <div class="entry improve">
+      <div class="entry-tag">Improve</div>
+      <div class="entry-title">Charm Counting Snapshot Timing</div>
+      <div class="entry-desc">
+        Post-loot inventory snapshot delay extended from 600–1200ms to 1200–1800ms so items
+        have time to land in the backpack before the pre/post diff runs.
+        A debug log line now prints exact before/after charm and coin counts on every loot cycle.
+      </div>
+    </div>
+
+    <div class="entry improve">
+      <div class="entry-tag">Improve</div>
+      <div class="entry-title">Aggro Detection Simplified and Debuggable</div>
+      <div class="entry-desc">
+        Removed unreliable <code>getHitmarks()</code> (only fires the exact damage tick) and the
+        broken <code>NpcQuery.interactId(playerId)</code> call (filtered by NPC ID, not target).
+        Replaced NPC targeting check with a loop over all nearby NPCs calling <code>npc.getInteractId()</code>
+        and comparing to the player ID. Added <code>[AggroDebug]</code> log lines printing
+        <code>inCombat</code>, <code>hasTarget</code>, and <code>npcOnUs</code> every ~5 seconds
+        so detection issues are immediately visible in the console.
+        Walk timeout and arrived paths both reset <code>lastCombatTimeMs</code> to prevent spin-retries.
+      </div>
+    </div>
+
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!--  KNOWN ISSUES                                                            -->
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -528,32 +640,16 @@
       </div>
     </div>
 
-    <div class="known">
-      <div class="known-title">Loot interface re-open can click wrong item</div>
-      <div class="known-desc">
-        When the loot interface is closed, the script clicks <code>EntityResultSet.nearest()</code> 
-        ground item to reopen it. If the nearest item on the ground is not a monster drop 
-        (e.g. a player-dropped item or an unrelated object), the loot interface may not open 
-        and the loot cycle will silently skip. Needs filtering by item type or area constraint.
-      </div>
-    </div>
 
-    <div class="known">
-      <div class="known-title">No presets can be added from the UI at runtime</div>
-      <div class="known-desc">
-        AFK location presets are currently hardcoded as a static list in the source. 
-        To add a new location, the source must be edited and recompiled. 
-        A planned improvement is a UI form to enter a name and coordinate pairs at runtime, 
-        persisted to <code>ScriptConfig</code>.
-      </div>
-    </div>
+
+
 
   </div>
 
 
   <div class="footer">
     <span class="pulse"></span>
-    CHARM COLLECTOR &nbsp;·&nbsp; DEV SESSION 2026-02-25 &nbsp;·&nbsp; BUILD IN PROGRESS &nbsp;·&nbsp; BOTWITHUS API 1.0.8
+    CHARM COLLECTOR &nbsp;·&nbsp; DEV SESSION 2026-02-25 &nbsp;·&nbsp; UPDATED &nbsp;·&nbsp; BOTWITHUS API 1.0.8
   </div>
 
 </div>
