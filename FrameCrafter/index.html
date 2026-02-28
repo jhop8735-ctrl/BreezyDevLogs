@@ -370,15 +370,15 @@
 
     <div class="entry feature">
       <div class="entry-tag">Feature</div>
-      <div class="entry-title">Camera Rotation — Robot Arrow Key Nudges</div>
+      <div class="entry-title">Camera Rotation — A/D Key Nudges via BWU API</div>
       <div class="entry-desc">
-        Rotates the RS3 camera every 2–5 minutes using <code>java.awt.Robot</code> arrow key presses —
-        simulates hardware-level input, safe to call at any time including during active crafting.
-        Hold duration maps to 45–90° rotation (RS3 rotates ~90°/sec with arrow keys, so 500–1000ms hold).
-        Direction alternates left/right with a 75% flip chance, 25% same-side repeat so the pattern is
-        never a rigid L-R-L-R metronome. Pre-action pause (80–250ms) and post-release settle (60–180ms)
-        mirror real human behaviour. Key is always released inside an <code>InterruptedException</code>
-        catch to prevent a permanently stuck key.
+        Rotates the RS3 camera every 2–5 minutes using <code>KeyboardInput.pressKey()</code> on
+        the <code>A</code> and <code>D</code> keys — the same keys most RS3 players use to pan the
+        camera, routed through BWU's own input layer. 5 taps ≈ 360° so each press is ~72°; kept to
+        1 tap 90% of the time and 2 taps 10% of the time for subtle, human-sized nudges.
+        Direction alternates left/right with a 75% flip chance, 25% same-side repeat.
+        No <code>java.awt</code> dependency whatsoever — key codes are defined as plain
+        <code>int</code> constants inside the class.
       </div>
     </div>
 
@@ -583,14 +583,17 @@
 
     <div class="entry fix">
       <div class="entry-tag">Fix</div>
-      <div class="entry-title">Camera Rotation Using java.awt.Robot — Detectable OS-Level Input</div>
+      <div class="entry-title">Camera Rotation — Removed java.awt.Robot, Arrow Keys → A/D</div>
       <div class="entry-desc">
-        The camera rotation was using <code>java.awt.Robot.keyPress()</code> and
-        <code>keyRelease()</code> — OS-level synthetic input that bypasses the game's input
-        layer and is trivially detectable. Replaced entirely with
-        <code>KeyboardInput.pressKey()</code>, the same BWU API method already used for zoom.
-        <code>java.awt.Robot</code>, <code>java.awt.AWTException</code>, <code>Thread.sleep()</code>,
-        and the <code>awtRobot</code> field are completely removed.
+        Camera rotation originally used <code>java.awt.Robot.keyPress()</code> and
+        <code>keyRelease()</code> — OS-level synthetic input that bypasses the game's input layer
+        and is a known ban signal. Replaced entirely with <code>KeyboardInput.pressKey()</code>
+        on <code>A</code>/<code>D</code>, the keys RS3 players naturally use for camera panning.
+        All of <code>java.awt.Robot</code>, <code>java.awt.AWTException</code>,
+        <code>java.awt.event.KeyEvent</code>, <code>Thread.sleep()</code>, and the
+        <code>awtRobot</code> field are gone. Key codes are now plain <code>int</code> constants
+        (<code>KEY_A = 65</code>, <code>KEY_D = 68</code>) so no <code>java.awt</code> import
+        exists anywhere in the file.
       </div>
     </div>
 
