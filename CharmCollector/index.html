@@ -850,6 +850,44 @@
       </div>
     </div>
 
+    <div class="entry fix">
+      <div class="entry-tag">Fix</div>
+      <div class="entry-title">Door Click — No Re-Nav After Successful Click</div>
+      <div class="entry-desc">
+        When <code>click=true</code> but the passage threshold wasn't met within the timeout,
+        the loop was re-navving to the door coords and clicking again — walking the player
+        back through the gate from the other side and toggling it in reverse.
+        Fixed: if the click returned <code>true</code>, the method now only waits (up to 30s)
+        and never calls <code>bankingNavTo(doorCoords)</code> again.
+        Re-nav and re-click only happens when <code>click=false</code> (object not loaded / out of range).
+      </div>
+    </div>
+
+    <div class="entry fix">
+      <div class="entry-tag">Fix</div>
+      <div class="entry-title">Console Question Marks — Unicode to ASCII</div>
+      <div class="entry-desc">
+        The BotWithUs console renders strings as Latin-1, not UTF-8. All em-dashes (<code>—</code>,
+        encoded as 3-byte UTF-8 <code>\xe2\x80\x94</code>) and box-drawing chars in
+        <code>println()</code> calls were rendering as <code>???</code>.
+        Replaced all em-dashes with <code>--</code>, en-dashes with <code>-</code>,
+        and arrows with <code>-&gt;</code> throughout every log string.
+      </div>
+    </div>
+
+    <div class="entry fix">
+      <div class="entry-tag">Fix</div>
+      <div class="entry-title">Session Log Zeros — Save on STOP, Not onDeactivation</div>
+      <div class="entry-desc">
+        The session log was saved in <code>onDeactivation()</code> which fires when BotWithUs
+        unloads the script — by which point <code>startTimeMs</code> could be 0 and all stats
+        already reset. Fixed: the STOP button now calls <code>saveSessionLog(elapsed, consoleLines)</code>
+        immediately while stats are live. The saved file now also includes a full
+        <code>--- Console Log ---</code> section appended at the bottom.
+        <code>onDeactivation()</code> is kept as a safety fallback only.
+      </div>
+    </div>
+
   </div>
 
   <div class="footer">
